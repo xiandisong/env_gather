@@ -20,9 +20,10 @@ public class GatherImpl implements Gather {
 	public Collection<Environment> gather() throws Exception {
 		// 采集数据本质上就是为了读取data-file文件中的内容
 		InputStream in = GatherImpl.class.getClassLoader()
-				.getResourceAsStream("data-file-simple");
+				.getResourceAsStream("data-file");
 		// 该文件中每一行数据 就是一个整体，表示一条环境数据，应该考虑使用 BufferedReader中的readLine()
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
 		// 因为文件存在多行数据，所以应该使用集合将所有数据进行保存
 		List<Environment> list = new ArrayList<>();
 		String line;
@@ -75,9 +76,12 @@ public class GatherImpl implements Gather {
 					System.err.println("出现异常传感器地址数据:" + infos[3]);
 					continue;
 			}
-
 			list.add(env);
 		}
+		// 关闭资源
+		br.close();
+		in.close();
+		// 返回数据
 		return list;
 	}
 
