@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.briup</groupId>
+    <artifactId>env_gather</artifactId>
+    <version>v1.0</version>
+    <!--packaging:用于表示项目的打包方式，通常来说父项目的打包方式都是pom-->
+    <packaging>pom</packaging>
+
+    <!--modules中用于记录子项目哪些-->
+    <modules>
+        <module>env_common</module>
+        <module>env_client</module>
+        <module>env_server</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <env_common-version>v1.0</env_common-version>
+        <mysql-version>8.0.33</mysql-version>
+    </properties>
+
+    <!--在父项目中可以管理子项目所需的依赖-->
+    <dependencyManagement>
+      <dependencies>
+          <!--引入env_common依赖，内部包含了公共功能的实现与配置-->
+          <dependency>
+              <groupId>com.briup</groupId>
+              <artifactId>env_common</artifactId>
+              <version>${env_common-version}</version>
+          </dependency>
+          <!--引入mysql的依赖-->
+          <dependency>
+              <groupId>mysql</groupId>
+              <artifactId>mysql-connector-java</artifactId>
+              <version>${mysql-version}</version>
+          </dependency>
+      </dependencies>
+    </dependencyManagement>
+
+</project>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!--在parent标签内记录本项目的父项目是哪个-->
+    <parent>
+        <groupId>com.briup</groupId>
+        <artifactId>env_gather</artifactId>
+        <version>v1.0</version>
+    </parent>
+
+    <artifactId>env_common</artifactId>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!--引入lombok依赖，用于简化实体类的定义-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version>
+            <!--在引入的依赖中使用optional标签能够是该依赖仅限于本项目使用，
+            在其他项目引入本项目依赖时，不会将标注了optional标签的依赖引入，
+            即不会进行依赖传递-->
+            <optional>true</optional>
+        </dependency>
+        <!--添加Junit的依赖，用于测试-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+        </dependency>
+    </dependencies>
+
+</project>

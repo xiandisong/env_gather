@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.briup</groupId>
+        <artifactId>env_gather</artifactId>
+        <version>v1.0</version>
+    </parent>
+
+    <artifactId>env_server</artifactId>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <!--引入env_common依赖，内部包含了公共功能的实现与配置-->
+        <dependency>
+            <groupId>com.briup</groupId>
+            <artifactId>env_common</artifactId>
+        </dependency>
+        <!--引入mysql的依赖-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <!--如果在父项目中声明了某一个依赖，那么在子项目中就可以不用指定该依赖的版本-->
+        </dependency>
+    </dependencies>
+
+</project>
