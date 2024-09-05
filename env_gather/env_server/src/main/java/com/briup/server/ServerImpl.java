@@ -1,6 +1,7 @@
 package com.briup.server;
 
 import com.briup.bean.Environment;
+import com.briup.dbstore.DbStoreImpl;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -19,11 +20,17 @@ import java.util.concurrent.TimeUnit;
  * @date 2024/8/23-16:56
  */
 public class ServerImpl implements Server {
+	// 循环条件
 	private boolean flag = true;
+	// 服务器对象
 	private ServerSocket server;
+	// 线程池对象
 	private ThreadPoolExecutor threadPool;
+	// 服务器的端口号
 	private int serverPort = 9999;
 	private int shutdownPort = 8989;
+	// 入库模块的对象
+	private DbStoreImpl dbStore = new DbStoreImpl();
 
 	@Override
 	public void receive() throws Exception {
@@ -66,6 +73,8 @@ public class ServerImpl implements Server {
 					Collection<Environment> list = (Collection<Environment>) o;
 					// 输出读取的数据条数
 					System.out.println("本次读取的数据条数为:" + list.size());
+					// 将数据入库
+					dbStore.dbStore(list);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				} finally {

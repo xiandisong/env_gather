@@ -29,6 +29,12 @@
             <artifactId>mysql-connector-java</artifactId>
             <!--如果在父项目中声明了某一个依赖，那么在子项目中就可以不用指定该依赖的版本-->
         </dependency>
+        <!--引入druid的依赖-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.2.20</version>
+        </dependency>
     </dependencies>
 
 </project>
