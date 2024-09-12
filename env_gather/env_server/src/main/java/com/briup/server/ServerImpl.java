@@ -2,6 +2,8 @@ package com.briup.server;
 
 import com.briup.bean.Environment;
 import com.briup.dbstore.DbStoreImpl;
+import com.briup.log.Log;
+import com.briup.log.LogImpl;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -31,12 +33,13 @@ public class ServerImpl implements Server {
 	private int shutdownPort = 8989;
 	// 入库模块的对象
 	private DbStoreImpl dbStore = new DbStoreImpl();
+	private final Log log = new LogImpl();
 
 	@Override
 	public void receive() throws Exception {
 		// 创建服务器，端口号要与客户端连接的端口号保持一致
 		server = new ServerSocket(serverPort);
-		System.out.println("服务器已启动，等待客户端连接");
+		log.info("服务器已启动，等待客户端连接");
 		// 创建线程池对象
 		threadPool = new ThreadPoolExecutor(5, 15,
 				1, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10));
@@ -54,7 +57,7 @@ public class ServerImpl implements Server {
 		while (flag) {
 			// 接收客户端的连接，返回客户端的连接对象，如果没有客户端的连接，将一直处于阻塞状态
 			Socket client = server.accept();
-			System.out.println(client + "客户端已连接");
+			log.info(client + "客户端已连接");
 			// 采用多线程的方式实现，任务就是：异步处理各客户端的连接以及接收客户端传输的资源
 			Runnable task = () -> {
 				// 读取客户端传输的数据，先获取客户端输入流
@@ -67,12 +70,14 @@ public class ServerImpl implements Server {
 					// 读取数据
 					Object o = ois.readObject();
 					if (!(o instanceof Collection)) {
-						System.err.println("接收的数据有误：" + o);
+						log.error("接收的数据有误：" + o);
+						// 接收的数据有误，直接结束处理的任务
+						return;
 					}
 					// 如果是集合，那么直接强转
 					Collection<Environment> list = (Collection<Environment>) o;
 					// 输出读取的数据条数
-					System.out.println("本次读取的数据条数为:" + list.size());
+					log.info("本次读取的数据条数为:" + list.size());
 					// 将数据入库
 					dbStore.dbStore(list);
 				} catch (Exception e) {
@@ -85,7 +90,7 @@ public class ServerImpl implements Server {
 						in.close();
 						client.close();
 					} catch (IOException e) {
-						System.out.println("出现异常了:" + e);
+						log.error("出现异常了:" + e);
 					}
 				}
 			};
@@ -98,9 +103,10 @@ public class ServerImpl implements Server {
 	public void shutdown() throws Exception {
 		// 写一个监听器，一旦监听到某种信号，就立马执行后续的操作
 		ServerSocket shutdownServer = new ServerSocket(shutdownPort);
-		// 监听信号，一旦由客户端的连接，立马执行后续操作，如果没有客户端连接，将阻塞在本行代码中，后续操作不执行
+		// 监听信号，一旦由客户端的连接，立马执行后续操作，如果没有客户端连接，
+		// 将阻塞在本行代码中，后续操作不执行
 		shutdownServer.accept();
-		System.out.println("接收到关闭资源的信号");
+		log.warn("接收到关闭资源的信号");
 		// 修改循环条件
 		flag = false;
 		// 关闭服务器资源以及线程池资源

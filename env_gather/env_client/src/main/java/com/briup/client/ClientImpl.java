@@ -1,6 +1,8 @@
 package com.briup.client;
 
 import com.briup.bean.Environment;
+import com.briup.log.Log;
+import com.briup.log.LogImpl;
 
 import java.io.BufferedOutputStream;
 import java.io.ObjectOutputStream;
@@ -14,6 +16,8 @@ import java.util.Collection;
  * @date 2024/8/23-16:02
  */
 public class ClientImpl implements Client {
+	private final Log log = new LogImpl();
+
 	@Override
 	public void send(Collection<Environment> environments) throws Exception {
 		// 将采集到的数据发送到服务端
@@ -22,13 +26,14 @@ public class ClientImpl implements Client {
 		OutputStream out = client.getOutputStream();
 		// 使用BufferedOutputStream进行包装，提高传输效率
 		ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(out));
+		log.info("客户端开始发送数据，准备发送的数据条数为:" + environments.size());
 		// 写出数据
 		oos.writeObject(environments);
 		// 刷新管道
 		oos.flush();
 		// 叫停输出
 		client.shutdownOutput();
-		System.out.println("传输成功，本次传输的数据条数为:" + environments.size());
+		log.info("传输成功，本次传输的数据条数为:" + environments.size());
 
 		// 关闭资源
 		client.close();

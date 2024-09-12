@@ -1,6 +1,8 @@
 package com.briup.gather;
 
 import com.briup.bean.Environment;
+import com.briup.log.Log;
+import com.briup.log.LogImpl;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -16,8 +18,13 @@ import java.util.List;
  * @date 2024/8/22-11:26
  */
 public class GatherImpl implements Gather {
+
+	private final Log log = new LogImpl();
+
 	@Override
 	public Collection<Environment> gather() throws Exception {
+		log.info("开始采集数据...");
+
 		// 采集数据本质上就是为了读取data-file文件中的内容
 		InputStream in = GatherImpl.class.getClassLoader()
 				.getResourceAsStream("data-file");
@@ -32,7 +39,7 @@ public class GatherImpl implements Gather {
 			String[] infos = line.split("[|]");
 			if (infos.length != 9) {
 				// 数据分割后不够9部分，说明本条数据有问题
-				System.err.println("出现问题数据:" + line);
+				log.error("出现问题数据:" + line);
 				continue;
 			}
 
@@ -73,7 +80,7 @@ public class GatherImpl implements Gather {
 					env.setData(Integer.parseInt(infos[6].substring(0, 4), 16));
 					break;
 				default:
-					System.err.println("出现异常传感器地址数据:" + infos[3]);
+					log.error("出现异常传感器地址数据:" + infos[3]);
 					continue;
 			}
 			list.add(env);
@@ -81,6 +88,9 @@ public class GatherImpl implements Gather {
 		// 关闭资源
 		br.close();
 		in.close();
+
+		log.info("数据采集完毕...");
+
 		// 返回数据
 		return list;
 	}

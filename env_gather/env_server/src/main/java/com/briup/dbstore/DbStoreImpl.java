@@ -1,6 +1,8 @@
 package com.briup.dbstore;
 
 import com.briup.bean.Environment;
+import com.briup.log.Log;
+import com.briup.log.LogImpl;
 import com.briup.utils.JdbcUtil;
 
 import java.sql.Connection;
@@ -16,10 +18,12 @@ import java.util.Collection;
  * @date 2024/8/26-16:54
  */
 public class DbStoreImpl implements DbStore {
+
+	private final Log log = new LogImpl();
+
 	@Override
 	public void dbStore(Collection<Environment> environments) throws Exception {
-		System.out.println("准备入库，入库的数据条数为:" + environments.size());
-		long start = System.currentTimeMillis();
+		log.info("准备入库，入库的数据条数为:" + environments.size());
 		// 获取数据库连接
 		Connection conn = JdbcUtil.getConnection();
 		// day 用于记录某一批待入库数据属于 哪一天/哪一个数据库 的数据
@@ -38,7 +42,7 @@ public class DbStoreImpl implements DbStore {
 
 				// 根据日期决定将数据存入哪个表中，根据日期决定是否要提交入库的表
 				if (currentDay != day) {
-					// 在替换PreparedStatement前将本批未提交得到数据及时提交
+					// 在替换PreparedStatement前将本批未提交的数据及时提交
 					if (ps != null) {
 						ps.executeBatch();
 						conn.commit();
@@ -62,17 +66,15 @@ public class DbStoreImpl implements DbStore {
 					conn.commit();
 				}
 			}
+			log.info("数据入库成功，本次入库的数据条数为:" + environments.size());
 		} catch (Exception e) {
 			// 当出现异常时，对数据进行回滚
-			System.err.println("出现异常了");
+			log.error("出现异常了");
 			conn.rollback();
+		} finally {
+			// 关闭资源
+			JdbcUtil.close(conn, ps);
 		}
-		// 关闭资源
-		if (ps != null) {
-			ps.close();
-		}
-		conn.close();
-		System.out.println("数据入库成功，本次用时:" + (System.currentTimeMillis() - start));
 	}
 
 	/**
