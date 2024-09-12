@@ -1,10 +1,13 @@
 package com.briup.gather;
 
+import com.briup.backup.Backup;
+import com.briup.backup.BackupImpl;
 import com.briup.bean.Environment;
 import com.briup.log.Log;
 import com.briup.log.LogImpl;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Timestamp;
@@ -19,7 +22,10 @@ import java.util.List;
  */
 public class GatherImpl implements Gather {
 
+	private String gatherFile = "data-file";
+	private String backupFile = "gather_backup.dat";
 	private final Log log = new LogImpl();
+	private final Backup backup = new BackupImpl();
 
 	@Override
 	public Collection<Environment> gather() throws Exception {
@@ -27,7 +33,20 @@ public class GatherImpl implements Gather {
 
 		// 采集数据本质上就是为了读取data-file文件中的内容
 		InputStream in = GatherImpl.class.getClassLoader()
-				.getResourceAsStream("data-file");
+				.getResourceAsStream(gatherFile);
+
+		// 获取本次读取的字节数，将其备份到文件中，以便下一次采集时跳过
+		long available = in.available();
+
+		if (new File(backupFile).exists()) {
+			// 如果备份文件存在，那么说明不是第一次采集数据，
+			// 需要从备份文件中获取上一次采集过的数据量是多少，
+			// 以便本次采集时进行跳过
+			Long skipNum = backup.load(backupFile, Long.class, true);
+			// 在本次采集时，跳过上一次读取过的字节数
+			long skip = in.skip(skipNum);
+		}
+
 		// 该文件中每一行数据 就是一个整体，表示一条环境数据，应该考虑使用 BufferedReader中的readLine()
 		BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
@@ -90,6 +109,7 @@ public class GatherImpl implements Gather {
 		in.close();
 
 		log.info("数据采集完毕...");
+		backup.store(backupFile, available, false);
 
 		// 返回数据
 		return list;
