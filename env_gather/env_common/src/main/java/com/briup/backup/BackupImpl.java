@@ -1,7 +1,7 @@
 package com.briup.backup;
 
 import com.briup.log.Log;
-import com.briup.log.LogImpl;
+import lombok.Setter;
 
 import java.io.*;
 
@@ -10,9 +10,10 @@ import java.io.*;
  * @Description 备份模块的基础实现类
  * @date 2024/8/28-9:08
  */
+@Setter
 public class BackupImpl implements Backup {
 
-	private final Log log = new LogImpl();
+	private Log log;
 
 	@Override
 	public <T> void store(String fileName, T data, boolean append) throws Exception {
@@ -53,6 +54,10 @@ public class BackupImpl implements Backup {
 		ois.close();
 		in.close();
 
-		return (T) o;
+		if (tClass.isInstance(o)) {
+			return tClass.cast(o);
+		} else {
+			throw new ClassCastException("该文件中备份的数据类型不是:" + tClass.getName());
+		}
 	}
 }

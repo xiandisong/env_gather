@@ -2,11 +2,9 @@ package com.briup.main;
 
 import com.briup.bean.Environment;
 import com.briup.client.Client;
-import com.briup.client.ClientImpl;
+import com.briup.config.BeanFactory;
 import com.briup.gather.Gather;
-import com.briup.gather.GatherImpl;
 import com.briup.log.Log;
-import com.briup.log.LogImpl;
 
 import java.util.Collection;
 
@@ -17,12 +15,11 @@ import java.util.Collection;
  */
 public class ClientMain {
 	public static void main(String[] args) {
-		Gather gather = new GatherImpl();
-		Client client = new ClientImpl();
-		Log log = new LogImpl();
+		Gather gather = BeanFactory.getBean("gather", Gather.class);
+		Client client = BeanFactory.getBean("client", Client.class);
+		Log log = BeanFactory.getBean("log", Log.class);
 		try {
 			Collection<Environment> list = gather.gather();
-			log.info("本次采集到的数据条数为:" + list.size());
 			if (list.isEmpty()) {
 				// 如果数据集合为空，那么本次无需传输数据
 				log.warn("本次采集到的数据为空，无需传输");

@@ -1,9 +1,9 @@
 package com.briup.server;
 
 import com.briup.bean.Environment;
-import com.briup.dbstore.DbStoreImpl;
+import com.briup.dbstore.DbStore;
 import com.briup.log.Log;
-import com.briup.log.LogImpl;
+import lombok.Setter;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
  * @Description 服务器网络模块的实现类
  * @date 2024/8/23-16:56
  */
+@Setter
 public class ServerImpl implements Server {
 	// 循环条件
 	private boolean flag = true;
@@ -29,11 +30,11 @@ public class ServerImpl implements Server {
 	// 线程池对象
 	private ThreadPoolExecutor threadPool;
 	// 服务器的端口号
-	private int serverPort = 9999;
-	private int shutdownPort = 8989;
+	private int serverPort;
+	private int shutdownPort;
 	// 入库模块的对象
-	private DbStoreImpl dbStore = new DbStoreImpl();
-	private final Log log = new LogImpl();
+	private DbStore dbStore;
+	private Log log;
 
 	@Override
 	public void receive() throws Exception {
@@ -69,12 +70,13 @@ public class ServerImpl implements Server {
 					ois = new ObjectInputStream(new BufferedInputStream(in));
 					// 读取数据
 					Object o = ois.readObject();
-					if (!(o instanceof Collection)) {
+					if (!(o instanceof Collection<?>)) {
 						log.error("接收的数据有误：" + o);
 						// 接收的数据有误，直接结束处理的任务
 						return;
 					}
 					// 如果是集合，那么直接强转
+					@SuppressWarnings("unchecked")
 					Collection<Environment> list = (Collection<Environment>) o;
 					// 输出读取的数据条数
 					log.info("本次读取的数据条数为:" + list.size());

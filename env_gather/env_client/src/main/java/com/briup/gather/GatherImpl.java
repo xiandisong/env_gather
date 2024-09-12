@@ -1,10 +1,9 @@
 package com.briup.gather;
 
 import com.briup.backup.Backup;
-import com.briup.backup.BackupImpl;
 import com.briup.bean.Environment;
 import com.briup.log.Log;
-import com.briup.log.LogImpl;
+import lombok.Setter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,12 +19,13 @@ import java.util.List;
  * @Description 采集模块的实现类，负责采集文件中的数据，并且对其进行解析与清洗
  * @date 2024/8/22-11:26
  */
+@Setter
 public class GatherImpl implements Gather {
 
-	private String gatherFile = "data-file";
-	private String backupFile = "gather_backup.dat";
-	private final Log log = new LogImpl();
-	private final Backup backup = new BackupImpl();
+	private String gatherFile;
+	private String backupFile;
+	private Log log;
+	private Backup backup;
 
 	@Override
 	public Collection<Environment> gather() throws Exception {
@@ -45,6 +45,7 @@ public class GatherImpl implements Gather {
 			Long skipNum = backup.load(backupFile, Long.class, true);
 			// 在本次采集时，跳过上一次读取过的字节数
 			long skip = in.skip(skipNum);
+			log.warn(String.format("本次跳过%s字节数据", skip));
 		}
 
 		// 该文件中每一行数据 就是一个整体，表示一条环境数据，应该考虑使用 BufferedReader中的readLine()
@@ -108,7 +109,7 @@ public class GatherImpl implements Gather {
 		br.close();
 		in.close();
 
-		log.info("数据采集完毕...");
+		log.info("数据采集完毕，本次采集的数据条数为:" + list.size());
 		backup.store(backupFile, available, false);
 
 		// 返回数据

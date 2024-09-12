@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans>
+    <!--入库模块对象-->
+    <bean name="dbStore" class="com.briup.dbstore.DbStoreImpl">
+        <property name="backupFile" value="dbStore_backup.dat"/>
+        <!--日志模块和备份模块的对象-->
+        <property name="log" ref="log"/>
+        <property name="backup" ref="backup"/>
+    </bean>
+    <!--服务器网络模块-->
+    <bean name="server" class="com.briup.server.ServerImpl">
+        <property name="serverPort" value="9999"/>
+        <property name="shutdownPort" value="8989"/>
+        <!--日志模块和备份模块的对象-->
+        <property name="log" ref="log"/>
+        <property name="dbStore" ref="dbStore"/>
+    </bean>
+    <!--log对象-->
+    <bean name="log" class="com.briup.log.LogImpl"/>
+    <!--backup对象-->
+    <bean name="backup" class="com.briup.backup.BackupImpl">
+        <property name="log" ref="log"/>
+    </bean>
+</beans>

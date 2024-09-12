@@ -1,5 +1,6 @@
 package com.briup.main;
 
+import com.briup.config.BeanFactory;
 import com.briup.log.Log;
 import com.briup.log.LogImpl;
 import com.briup.server.Server;
@@ -12,8 +13,8 @@ import com.briup.server.ServerImpl;
  */
 public class ServerMain {
 	public static void main(String[] args) {
-		Server server = new ServerImpl();
-		Log log = new LogImpl();
+		Server server = BeanFactory.getBean("server", Server.class);
+		Log log = BeanFactory.getBean("log", Log.class);
 		try {
 			// 服务器网络模块接收数据
 			server.receive();

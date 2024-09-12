@@ -2,7 +2,7 @@ package com.briup.client;
 
 import com.briup.bean.Environment;
 import com.briup.log.Log;
-import com.briup.log.LogImpl;
+import lombok.Setter;
 
 import java.io.BufferedOutputStream;
 import java.io.ObjectOutputStream;
@@ -15,13 +15,16 @@ import java.util.Collection;
  * @Description 客户端网络模块的实现
  * @date 2024/8/23-16:02
  */
+@Setter
 public class ClientImpl implements Client {
-	private final Log log = new LogImpl();
+	private String host;
+	private int port;
+	private Log log;
 
 	@Override
 	public void send(Collection<Environment> environments) throws Exception {
 		// 将采集到的数据发送到服务端
-		Socket client = new Socket("127.0.0.1", 9999);
+		Socket client = new Socket(host, port);
 		// 获取输出流
 		OutputStream out = client.getOutputStream();
 		// 使用BufferedOutputStream进行包装，提高传输效率

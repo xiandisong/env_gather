@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans>
+    <!--采集模块对象-->
+    <bean name="gather" class="com.briup.gather.GatherImpl">
+        <property name="gatherFile" value="data-file"/>
+        <property name="backupFile" value="gather_backup.dat"/>
+        <!--日志模块和备份模块的对象-->
+        <property name="log" ref="log"/>
+        <property name="backup" ref="backup"/>
+    </bean>
+    <!--客户端网络模块-->
+    <bean name="client" class="com.briup.client.ClientImpl">
+        <property name="host" value="127.0.0.1"/>
+        <property name="port" value="9999"/>
+        <!--日志模块和备份模块的对象-->
+        <property name="log" ref="log"/>
+    </bean>
+    <!--log对象-->
+    <bean name="log" class="com.briup.log.LogImpl"/>
+    <!--backup对象-->
+    <bean name="backup" class="com.briup.backup.BackupImpl">
+        <property name="log" ref="log"/>
+    </bean>
+</beans>

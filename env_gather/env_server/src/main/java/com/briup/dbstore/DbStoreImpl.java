@@ -1,11 +1,10 @@
 package com.briup.dbstore;
 
 import com.briup.backup.Backup;
-import com.briup.backup.BackupImpl;
 import com.briup.bean.Environment;
 import com.briup.log.Log;
-import com.briup.log.LogImpl;
 import com.briup.utils.JdbcUtil;
+import lombok.Setter;
 
 import java.io.File;
 import java.sql.Connection;
@@ -13,26 +12,27 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author horry
  * @Description 入库模块的实现类
  * @date 2024/8/26-16:54
  */
+@Setter
 public class DbStoreImpl implements DbStore {
 
-	private String backupFile = "dbStore_backup.dat";
-	private final Log log = new LogImpl();
-	private final Backup backup = new BackupImpl();
+	private String backupFile;
+	private Log log;
+	private Backup backup;
 
 	@Override
 	public void dbStore(Collection<Environment> environments) throws Exception {
 		if (new File(backupFile).exists()) {
 			// 如果备份文件存在，那么说明存在上一次还未入库完的数据
+			@SuppressWarnings("unchecked")
 			Collection<Environment> c = backup.load(backupFile, Collection.class, true);
 			// 将上一次未入库完的数据，添加到本次入库数据之前
 			c.addAll(environments);
@@ -97,17 +97,14 @@ public class DbStoreImpl implements DbStore {
 			log.info("数据入库成功，本次入库的数据条数为:" + environments.size());
 		} catch (Exception e) {
 			// 当出现异常时，对数据进行回滚
-			log.error("出现异常了");
+			log.error(String.format("出现异常了，本次入库%s条数据，准备回滚", commitCount));
 			conn.rollback();
 			// 在数据回滚后，将本次未及时入库的数据备份到文件中
-			List<Environment> environmentList = new ArrayList<>(environments);
 			// 截取需要本分的数据子集
-			List<Environment> backupList = environmentList
-					.subList(commitCount, environmentList.size());
-			// 因为SubList没有实现序列化接口，所以将集合中的元素放入到ArrayList中
-			List<Environment> backupList2 = new ArrayList<>(backupList);
+			List<Environment> backupList = environments.stream().skip(commitCount)
+					.collect(Collectors.toList());
 			// 将数据备份到文件中
-			backup.store(backupFile, backupList2, false);
+			backup.store(backupFile, backupList, false);
 		} finally {
 			// 关闭资源
 			JdbcUtil.close(conn, ps);
